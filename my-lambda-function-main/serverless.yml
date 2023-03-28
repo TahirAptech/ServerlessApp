@@ -1,0 +1,68 @@
+service: my-lambda-function
+
+frameworkVersion: '2 || 3'
+
+provider:
+  profile: tahir
+  name: aws
+  runtime: nodejs14.x
+  lambdaHashingVersion: 20201221
+  region: us-east-1
+  stage: dev
+  iamRoleStatements:
+    - Effect: Allow
+      Action: 
+        - dynamodb:*
+      Resource:
+        - arn:aws:dynamodb:us-east-1:032751846634:table/TodoTable
+
+functions:
+  hello:
+    handler: functions/getHtml.handler
+    tracing: Active
+    timeout: 29
+    events:
+      - http:
+          path: /getHtml
+          method: get
+
+  addTodo:
+    handler: functions/addTodo.handler
+    tracing: Active
+    timeout: 29
+    events:
+      - http:
+          path: /addTodo
+          method: post
+  
+  getTodo:
+    handler: functions/getTodo.handler
+    tracing: Active
+    timeout: 29
+    events:
+      - http:
+          path: /getTodo
+          method: get
+  
+  deleteTodo:
+    handler: functions/deleteTodo.handler
+    tracing: Active
+    timeout: 29
+    events:
+      - http:
+          path: /deleteTodo/{id}
+          method: get
+
+resources:
+  Resources:
+    TodoTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: TodoTable
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
